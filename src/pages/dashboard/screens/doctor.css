@@ -1,0 +1,8 @@
+.inner{
+    display: flex;
+}
+.doc-details th,
+.doc-details td
+{
+    color: var(--text-primary);
+}
