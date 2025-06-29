@@ -23,64 +23,35 @@ const Doctor = ()=> {
 
     const hospitals = [
         {
-            value: 1,
+            value: "Matara",
             label: "Matara"
         },
         {
-            value: 2,
+            value: "Galle",
             label: "Galle"
         },
         {
-            value: 3,
+            value: "Colombo",
             label: "Colombo"
         },
 
     ]
     const cities = [
         {
-            value: 1,
+            value: "Matara",
             city: "Matara",
         },
         {
-            value: 2,
+            value: "Galle",
             city: "Galle",
         },
         {
-            value: 3,
+            value: "Pasgoda",
             city: "Pasgoda",
         },
         {
-            value: 4,
+            value: "Deniyaya",
             city: "Deniyaya",
-        },
-    ]
-    const doctorData = [
-        {
-            id: 1,
-            fName: "Chamindu",
-            lName: "Dislshan",
-            email: "chamindud061@gmail.com",
-            hospital: "Matara",
-            specialization: "Cardiologist",
-            status: true
-        },
-        {
-            id: 1,
-            fName: "Chamindu",
-            lName: "Dislshan",
-            email: "chamindud061@gmail.com",
-            hospital: "Matara",
-            specialization: "Cardiologist",
-            status: true
-        },
-        {
-            id: 1,
-            fName: "Chamindu",
-            lName: "Dislshan",
-            email: "chamindud061@gmail.com",
-            hospital: "Matara",
-            specialization: "Cardiologist",
-            status: true
         },
     ]
     const experiences = ["1", "2", "3", "4", "5", "5+"]
@@ -110,7 +81,7 @@ const Doctor = ()=> {
                 userRequest,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
@@ -139,10 +110,11 @@ const Doctor = ()=> {
                 doctorRequest,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
+            await fetchDoctors();
 
             alert("Doctor registered successfully!");
         } catch (error) {
@@ -164,19 +136,41 @@ const Doctor = ()=> {
                     size: 10
                 },
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("access_token")}`
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
             });
 
             setDoctors(response.data.data.dataList); // data field StandardResponse
             console.log(doctors)
+            console.log(localStorage.getItem("token"))
         } catch (err) {
             setError(err.message || 'Something went wrong');
         } finally {
             setLoading(false);
         }
     }
-        return (
+
+    const deleteDoctor = async (doctorId, userId)=>{
+        try{
+            const response = await axios.delete(
+           `http://localhost:9091/api/doctors/delete-doctor/${doctorId}`,
+           {
+               headers:{
+                   Authorization:`Bearer ${localStorage.getItem("token")}`
+               },
+               params:{
+                   userId:userId
+               }
+           }
+       )
+            console.log(response)
+            await fetchDoctors();
+        } catch (e){
+            console.log(e)
+        }
+    }
+
+    return (
             <div className={sideBarVisible ? "collapsed" : "expanded"}>
                 <div className="inner doctor">
                     <Box sx={{backgroundColor: "var(--bg-primary)"}} mx="auto" maxWidth={800} mt={5} p={3}
@@ -431,6 +425,10 @@ const Doctor = ()=> {
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">City</th>
+                                <th scope="col">Experience</th>
+                                <th scope="col">Address</th>
                                 <th scope="col">Hospital</th>
                                 <th scope="col">Specialization</th>
                                 <th scope="col">Status</th>
@@ -444,10 +442,14 @@ const Doctor = ()=> {
                                         <td>{index+1}</td>
                                         <td>{doc.name}</td>
                                         <td>{doc.email}</td>
+                                        <td>{doc.phoneNumber}</td>
+                                        <td>{doc.city}</td>
+                                        <td>{doc.experience}</td>
+                                        <td>{doc.address}</td>
                                         <td>{doc.hospital}</td>
                                         <td>{doc.specialization}</td>
                                         <td>{doc.status ? "Online" : "Offline"}</td>
-                                        <td><Button color="error" variant='contained'>Delete</Button></td>
+                                        <td><Button color="error" variant='contained' onClick={()=> deleteDoctor(doc.doctorId, doc.userId)}>Delete</Button></td>
                                     </tr>
                                 )
                             })}

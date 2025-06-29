@@ -7,9 +7,9 @@ import Doctor from "./pages/dashboard/screens/Doctor.jsx";
 
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("access_token"));
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
     useEffect(() => {
-        setIsAuthenticated(!!localStorage.getItem("access_token"))
+        setIsAuthenticated(!!localStorage.getItem("token"))
     }, [isAuthenticated]);
 
     return (
