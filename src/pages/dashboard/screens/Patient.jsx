@@ -13,7 +13,7 @@ const Patient = () => {
     const [address, setAddress] = useState("");
     const [phone, setPhone] = useState("");
     const [gender, setGender] = useState(null);
-    const [age, setAge] = useState();
+    const [age, setAge] = useState(null);
     const [password, setPassword] = useState("");
 
 
@@ -24,6 +24,10 @@ const Patient = () => {
     const [patients, setPatients] = useState([])
 
     const handleSubmit = async (e)=>{
+        if(!name || !email || !address || !phone || !gender || !age || !password){
+            alert("Please fill all the required fields");
+            return;
+        }
         e.preventDefault();
         const request = {
             name:name,
@@ -70,6 +74,16 @@ const Patient = () => {
 
     const deletePatient = async (userId) => {
         console.log("delete called with id "+userId)
+        console.log(userId)
+
+        const response = await axios.delete(`http://localhost:9090/api/users/delete-user/${userId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        console.log(response)
+        if(response.status === 204){
+            alert("Patient deleted successfully");
+            await fetchPatients();
+        }
     }
 
     const editPatient = async (patient)=>{
@@ -81,7 +95,7 @@ const Patient = () => {
         setEmail("");
         setPhone("");
         setName("");
-        setAge(null);
+        setAge("");
         setAddress("")
         setPassword("");
     }
