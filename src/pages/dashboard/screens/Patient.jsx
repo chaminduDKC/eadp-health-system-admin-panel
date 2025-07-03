@@ -23,12 +23,38 @@ const Patient = () => {
 
     const [patients, setPatients] = useState([])
 
+    const [enableEditMode, setEnableEditMode] = useState(false)
+    const [updateUserId, setUpdateUserId] = useState("")
+
     const handleSubmit = async (e)=>{
         if(!name || !email || !address || !phone || !gender || !age || !password){
             alert("Please fill all the required fields");
             return;
         }
+
         e.preventDefault();
+
+        if(enableEditMode){
+            const updateRequest = {
+                name:name,
+                email:email,
+                address:address,
+                password:password,
+                phone:phone,
+                gender:gender,
+                age:age
+            };
+
+            try{
+
+                const response = await axios.put(`http://localhost:9090/api/users/update-user/${updateUserId}`,
+                    updateRequest, {headers:{Authorization:`Bearer ${localStorage.getItem("token")}`}});
+
+                console.log("response for update \n "+response.data.code)
+            } catch (e) {
+                console.log(e)
+            }
+        } else{
         const request = {
             name:name,
             email:email,
@@ -51,6 +77,7 @@ const Patient = () => {
             await clearFields();
         } catch (e) {
             console.log(e)
+        }
         }
 
     }
@@ -87,7 +114,19 @@ const Patient = () => {
     }
 
     const editPatient = async (patient)=>{
-        console.log("Edit called with "+ patient)
+        await clearFields();
+        setData(patient);
+        console.log("Edit called with "+ patient.address)
+        setEnableEditMode(true);
+        setUpdateUserId(patient.userId);
+
+    }
+    const setData = (patient)=>{
+        setName(patient.name);
+        setEmail(patient.email);
+        setAddress(patient.address);
+        setPhone(patient.phone);
+        setPassword("");
     }
 
     const clearFields = async () => {
@@ -222,7 +261,8 @@ const Patient = () => {
 
                         />
                     </Box>
-                    <Button onClick={(e)=> handleSubmit(e)} type="submit" variant="contained" sx={{width:"100%", outline:"none", border:"none"}}>Save Patient</Button>
+                    <Button onClick={(e)=> handleSubmit(e)} type="submit" variant="contained"
+                            sx={{width:"100%", outline:"none", border:"none"}}>{enableEditMode ? "Update Patient" : "Save Patient"}</Button>
                 </form>
             </Box>
 
@@ -240,6 +280,10 @@ const Patient = () => {
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Email</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Phone</th>
                         <th scope="col">Patient Id</th>
                         <th scope="col">User Id</th>
 
@@ -253,6 +297,10 @@ const Patient = () => {
                                 <td>{index+1}</td>
                                 <td>{pat.name}</td>
                                 <td>{pat.email}</td>
+                                <td>{pat.address}</td>
+                                <td>{pat.gender}</td>
+                                <td>{pat.age}</td>
+                                <td>{pat.phone}</td>
                                 <td>{pat.patientId}</td>
                                 <td>{pat.userId}</td>
                                 <td>
