@@ -21,6 +21,7 @@ const Patient = () => {
         "Male","Female","Other"
     ]
 
+    const [patients, setPatients] = useState([])
 
     const handleSubmit = async (e)=>{
         e.preventDefault();
@@ -33,31 +34,56 @@ const Patient = () => {
             gender:gender,
             age:age
         };
-
-        // const patientRequest = {
-        //     name:name,
-        //     email:email,
-        //     password:password,
-        //     address:address,
-        //     phone:phone,
-        //     gender:gender,
-        //     age:age
-        // }
-
+        
         console.log(request);
-
         try {
-
             console.log("Started")
             const response = await axios.post("http://localhost:9090/api/users/register-patient",
                 request, {headers:{Authorization:`Bearer ${localStorage.getItem("token")}`}});
 
             console.log(response.data.data)
             console.log("Completed")
+            await fetchPatients()
+            await clearFields();
         } catch (e) {
             console.log(e)
         }
 
+    }
+
+    const fetchPatients = async ()=>{
+        try {
+            const response = await axios.get("http://localhost:9092/api/patients/find-all-patients", {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                params:{
+                    searchText:"",
+                    page:0,
+                    size:10
+                }
+            });
+            setPatients(response.data.data.patientList);
+            console.log(response.data.data);
+        } catch (error) {
+            console.error("Error fetching patients:", error);
+        }
+    }
+
+    const deletePatient = async (userId) => {
+        console.log("delete called with id "+userId)
+    }
+
+    const editPatient = async (patient)=>{
+        console.log("Edit called with "+ patient)
+    }
+
+    const clearFields = async () => {
+        setGender(null);
+        setEmail("");
+        setPhone("");
+        setName("");
+        setAge(null);
+        setAddress("")
+        setPassword("");
     }
     return(
         <div className="patient">
@@ -184,6 +210,46 @@ const Patient = () => {
                     </Box>
                     <Button onClick={(e)=> handleSubmit(e)} type="submit" variant="contained" sx={{width:"100%", outline:"none", border:"none"}}>Save Patient</Button>
                 </form>
+            </Box>
+
+
+
+
+            <Button onClick={()=> fetchPatients()}>Load patients</Button>
+            <Box sx={{
+                marginLeft: "40px",
+                marginTop: "20px"
+            }}>
+                <table className="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Patient Id</th>
+                        <th scope="col">User Id</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {patients.map((pat, index) => {
+                        return (
+                            <tr >
+                                <td>{index+1}</td>
+                                <td>{pat.name}</td>
+                                <td>{pat.email}</td>
+                                <td>{pat.patientId}</td>
+                                <td>{pat.userId}</td>
+                                <td>
+                                    <Button color="error" variant='contained' onClick={()=> deletePatient(pat.userId)}>Delete</Button>
+                                    <Button color="info" variant='outlined' onClick={() => editPatient(pat)}>Edit</Button>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                    </tbody>
+                </table>
             </Box>
         </div>
     )
