@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import Home from './pages/dashboard/screens/Home.jsx'
 import Doctor from "./pages/dashboard/screens/Doctor.jsx";
 import Patient from "./pages/dashboard/screens/Patient.jsx";
+import Booking from "./pages/dashboard/screens/Booking.jsx";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
                     <Route path='/dashboard/home' element={<Home />} />
                     <Route path='/dashboard/doctor' element={<Doctor />} />
                     <Route path='/dashboard/patient' element={<Patient />} />
+                    <Route path='/dashboard/booking' element={<Booking />} />
                 </Route>
             </Routes>
 

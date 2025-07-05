@@ -22,6 +22,7 @@ keycloak.init({ onLoad: 'login-required', checkLoginIframe: false })
                 </StrictMode>
             );
         } else {
+            console.log("not authenticated");
             keycloak.login(); // redirect to login if not authenticated
         }
 

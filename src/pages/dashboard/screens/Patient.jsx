@@ -284,8 +284,7 @@ const Patient = () => {
                         <th scope="col">Gender</th>
                         <th scope="col">Age</th>
                         <th scope="col">Phone</th>
-                        <th scope="col">Patient Id</th>
-                        <th scope="col">User Id</th>
+                        <th scope="col">Options</th>
 
 
                     </tr>
@@ -301,8 +300,6 @@ const Patient = () => {
                                 <td>{pat.gender}</td>
                                 <td>{pat.age}</td>
                                 <td>{pat.phone}</td>
-                                <td>{pat.patientId}</td>
-                                <td>{pat.userId}</td>
                                 <td>
                                     <Button color="error" variant='contained' onClick={()=> deletePatient(pat.userId)}>Delete</Button>
                                     <Button color="info" variant='outlined' onClick={() => editPatient(pat)}>Edit</Button>
