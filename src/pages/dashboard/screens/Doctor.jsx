@@ -26,12 +26,13 @@ const Doctor = ()=> {
     const [phone, setPhone] = useState("")
     const [address, setAddress] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const [hospital, setHospital] = useState("")
-    const [city, setCity] = useState("")
-    const [experience, setExperience] = useState("1");
+    const [hospital, setHospital] = useState("Select Hospital")
+    const [city, setCity] = useState("Select City")
+    const [experience, setExperience] = useState("Select Experience");
     const [licenceNo, setLicenceNo] = useState("");
 
     const hospitals = [
+        { value: "Select Hospital", label: "Select Hospital" },
         {
             value: "Matara",
             label: "Matara"
@@ -128,6 +129,8 @@ const Doctor = ()=> {
                 alert("Doctor Updated completed")
                 setIsEditMode(false)
                 setLoading(false)
+                clearAllFields();
+                await fetchDoctors();
             } catch (e) {
                 console.log("Failed to update with error "+ e)
             }
@@ -296,12 +299,13 @@ const Doctor = ()=> {
 
     const clearAllFields = ()=>{
         setUpdate(false)
-        setCity(null)
+        setCity("Select City")
+        setHospital("")
         setEmail("")
         setName("")
         setLicenceNo("")
         setAddress("")
-        setExperience(null)
+        setExperience("Select Experience")
         setPassword("")
         setPhone("")
         setSpecialization("")
@@ -467,8 +471,8 @@ const Doctor = ()=> {
                                     label="Select"
                                     variant="filled"
                                     fullWidth
+                                    value={hospital}
                                     onChange={(e) => setHospital(e.target.value)}
-                                    defaultValue={hospital}
                                     helperText="Please select hospital"
                                 >
                                     {hospitals.map((option) => (
@@ -487,7 +491,7 @@ const Doctor = ()=> {
                                     variant="filled"
                                     fullWidth
                                     label="Select"
-                                    defaultValue={city}
+                                    value={city}
                                     onChange={(e) => setCity(e.target.value)}
                                     helperText="Please select city"
                                 >
@@ -617,3 +621,4 @@ const Doctor = ()=> {
     }
 
 export default Doctor;
+

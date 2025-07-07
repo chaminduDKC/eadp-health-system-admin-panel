@@ -2,9 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Box, Button, MenuItem, TextField, Typography} from "@mui/material";
 import axios from "axios";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-// import {DemoContainer} from "@mui/x-date-pickers/internals/demo/index.js";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 
 const Booking = () => {
 
@@ -20,9 +18,11 @@ const Booking = () => {
     const [patName, setPatName] = useState("")
 
     const [patients, setPatients] = useState([]);
-    const [doctors, setDoctors] = useState([])
+    const [doctors, setDoctors] = useState([]);
 
-    const [selectedDate, setSelectedDate] = React.useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
+
+    const [bookings, setBookings] = useState([]);
 
 
     const fetchPatients = async (setPatients) => {
@@ -36,6 +36,7 @@ const Booking = () => {
                 name: p.name,
             }));
             setPatients(patientNames);
+            console.log(patientNames)
         } catch (error) {
             console.log(error)
             setPatients([]);
@@ -90,7 +91,7 @@ const Booking = () => {
         setPatName("")
         setDocName("")
         setAvailableSlots([])
-        setSelectedDate(dayjs());
+        setSelectedDate(null);
     }
 
     useEffect(() => {
@@ -139,6 +140,7 @@ const Booking = () => {
                );
                console.log(response.data.data);
                console.log("created")
+               await fetchBookings();
                clearFields();
            } catch (e) {
                console.log("Could not create booking ", e)
@@ -147,11 +149,49 @@ const Booking = () => {
 
 
     }
+
+    const fetchBookings = async ()=>{
+        try {
+            const response = await axios.get("http://localhost:9093/api/bookings/find-all-bookings",
+                {headers: {"Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}`},
+                    params: {searchText:"", page: 0, size: 1000}}
+            );
+            console.log(response.data.data.bookingList)
+            setBookings(response.data.data.bookingList);
+        } catch (error) {
+            console.error("Error fetching bookings:", error);
+            return [];
+        }
+    }
+
+    const deleteBooking = async (booking)=>{
+        try {
+            const response = await axios.delete(`http://localhost:9093/api/bookings/delete-by-booking-id/${booking.bookingId}`,
+                {headers: {"Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}`}}
+            );
+            console.log(response.data);
+            await fetchBookings();
+        } catch (error) {
+            console.error("Error deleting booking:", error);
+        }
+    }
     return(
         <div className="bookings">
-            <Box sx={{backgroundColor: "var(--bg-primary)"}} mx="auto" maxWidth={800} mt={5} p={3}>
+            <Box sx={{
+                backgroundColor: "var(--bg-primary)",
+                display:"flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+            }} mx="auto" maxWidth={800} mt={5} p={3}>
                 <Typography variant="h4">Patient Services</Typography>
-                <form>
+                <form style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1rem",
+                    width: "100%",
+                    marginTop: "1rem"
+                }}>
                     <TextField
                         sx={{
                             backgroundColor: "whitesmoke"
@@ -255,8 +295,61 @@ const Booking = () => {
                 </form>
 
             </Box>
+
+            <Box sx={{
+                backgroundColor: "var(--bg-primary)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+            }} mx="auto" maxWidth={1200} mt={5} p={3}>
+
+                <Button onClick={fetchBookings}>see all bookings</Button>
+
+
+                <table className="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Doc Name</th>
+                        <th scope="col">Pat Name</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Options</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {bookings.map((booking, index) => {
+                        return (
+                            <tr>
+                                <td>{index+1}</td>
+                                <td>{booking.doctorName}</td>
+                                <td>{booking.patientName}</td>
+                                <td>{booking.date}</td>
+                                <td>{booking.time}</td>
+                                <td>{booking.status}</td>
+                                <td>{booking.reason}</td>
+                                <td>
+                                    <Button onClick={()=> deleteBooking(booking)}>Delete</Button>
+                                    <Button>Edit</Button>
+                                    <Button>Confirm</Button>
+                                    <Button>Cancel</Button>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                    </tbody>
+                </table>
+
+            </Box>
+
         </div>
 
-)};
+    )
+};
 
 export default Booking;
