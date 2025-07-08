@@ -593,7 +593,7 @@ const Doctor = ()=> {
                             <tbody>
                             {doctors.map((doc, index) => {
                                 return (
-                                    <tr >
+                                    <tr key={index}>
                                         <td>{index+1}</td>
                                         <td>{doc.name}</td>
                                         <td>{doc.email}</td>

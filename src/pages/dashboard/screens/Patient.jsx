@@ -292,7 +292,7 @@ const Patient = () => {
                     <tbody>
                     {patients.map((pat, index) => {
                         return (
-                            <tr >
+                            <tr key={index} >
                                 <td>{index+1}</td>
                                 <td>{pat.name}</td>
                                 <td>{pat.email}</td>

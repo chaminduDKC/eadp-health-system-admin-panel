@@ -6,8 +6,6 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
 const Booking = () => {
 
-
-    const [enableEditMode, setEnableEditMode] = useState(false);
     const [patient, setPatient] = useState("");
     const [doctor, setDoctor] = useState("");
     const [time, setTime] = useState("");
@@ -113,13 +111,11 @@ const Booking = () => {
 
     const handleSubmit = async (e)=>{
         const date = selectedDate.format("YYYY-MM-DD")
-        setEnableEditMode(false);
         e.preventDefault();
         if (!patient || !doctor || !time || !reason || !selectedDate) {
             alert("Please fill all the fields");
             return;
         }
-        if(!enableEditMode){
             const bookingRequest = {
                 patientId:patId,
                 patientName:patName,
@@ -145,8 +141,6 @@ const Booking = () => {
            } catch (e) {
                console.log("Could not create booking ", e)
            }
-        }
-
 
     }
 
@@ -174,6 +168,49 @@ const Booking = () => {
         } catch (error) {
             console.error("Error deleting booking:", error);
         }
+    }
+
+    const confirmBooking = async (booking)=>{
+        console.log("confirming booking ", booking.bookingId)
+        const status = "CONFIRMED";
+        console.log(status)
+        try {
+            const response = await axios.put(
+                `http://localhost:9093/api/bookings/update-booking-status/${booking.bookingId}`,
+                {}, // empty body
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    params: { status: status }
+                }
+            );
+            console.log(response)
+            console.log("Booking confirmed successfully");
+        } catch (e) {
+            console.log("Couldn't update status "+e)
+        }
+        await fetchBookings();
+    }
+
+    const cancelBooking = async (booking)=>{
+        console.log("cancelling booking ", booking.bookingId);
+
+        const status = "CANCELLED";
+        console.log(status)
+        try {
+            const response = await axios.put(
+                `http://localhost:9093/api/bookings/update-booking-status/${booking.bookingId}`,
+                {}, // empty body
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    params: { status: status }
+                }
+            );
+            console.log(response)
+            console.log("Booking cancelled successfully");
+        } catch (e) {
+            console.log("Couldn't update status "+e)
+        }
+        await fetchBookings();
     }
     return(
         <div className="bookings">
@@ -290,8 +327,17 @@ const Booking = () => {
                         onChange={(e) => setReason(e.target.value)}
                     />
 
-                    <Button onClick={(e)=> handleSubmit(e)} type="submit" variant="contained"
-                            sx={{width:"100%", outline:"none", border:"none"}}>{enableEditMode ? "Update Appointment" : "Save Appointment"}</Button>
+                    <Button
+                        sx={{
+                            width: "100%",
+                            outline: "none !important",
+                            border: "none !important",
+                            boxShadow: "none !important"
+                        }}
+                        onClick={(e)=> handleSubmit(e)}
+                        type="submit"
+                        variant="contained"
+                    >Save Appointment</Button>
                 </form>
 
             </Box>
@@ -304,7 +350,10 @@ const Booking = () => {
                 justifyContent: "center",
             }} mx="auto" maxWidth={1200} mt={5} p={3}>
 
-                <Button onClick={fetchBookings}>see all bookings</Button>
+                <Button
+                    sx={{ outline: "none !important", border: "none !important", boxShadow: "none !important" }}
+                    onClick={fetchBookings}
+                >see all bookings</Button>
 
 
                 <table className="table table-hover">
@@ -325,7 +374,7 @@ const Booking = () => {
                     <tbody>
                     {bookings.map((booking, index) => {
                         return (
-                            <tr>
+                            <tr key={index}>
                                 <td>{index+1}</td>
                                 <td>{booking.doctorName}</td>
                                 <td>{booking.patientName}</td>
@@ -334,10 +383,18 @@ const Booking = () => {
                                 <td>{booking.status}</td>
                                 <td>{booking.reason}</td>
                                 <td>
-                                    <Button onClick={()=> deleteBooking(booking)}>Delete</Button>
-                                    <Button>Edit</Button>
-                                    <Button>Confirm</Button>
-                                    <Button>Cancel</Button>
+                                    <Button
+                                        sx={{ outline: "none !important", border: "none !important", boxShadow: "none !important" }}
+                                        onClick={()=> deleteBooking(booking)}
+                                    >Delete</Button>
+                                    <Button
+                                        sx={{ outline: "none !important", border: "none !important", boxShadow: "none !important" }}
+                                        onClick={()=>{ confirmBooking(booking)}}
+                                    >Confirm</Button>
+                                    <Button
+                                        sx={{ outline: "none !important", border: "none !important", boxShadow: "none !important" }}
+                                        onClick={()=>{ cancelBooking(booking)}}
+                                    >Cancel</Button>
                                 </td>
                             </tr>
                         )
